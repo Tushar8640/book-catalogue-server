@@ -4,8 +4,6 @@ import { Secret } from "jsonwebtoken";
 import { ApiError } from "../../handleErrors/ApiError";
 import { verifyToken } from "../../shared/jwtHelpers";
 import config from "../../config";
-import { validateCowSeller } from "../modules/book/cow.validation";
-import { validateOrder } from "../modules/order/order.validation";
 
 export const auth =
   (document: string, ...roles: string[]) =>

@@ -13,7 +13,7 @@ export type IBook = {
   description?: string;
   reviews: Review[];
   image?: string;
-  addedBy: string;
+  addedBy: Types.ObjectId;
 };
 
 export type IBookFilters = {

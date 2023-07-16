@@ -65,6 +65,7 @@ export const getAllBooksService = async (
     .sort(sortConditions)
     .skip(skip)
     .limit(limit);
+
   const count = await Book.countDocuments(whereCondition);
   return {
     meta: {
@@ -80,7 +81,10 @@ export const getAllBooksService = async (
 export const getSingleBookService = async (
   id: string
 ): Promise<IBook | null> => {
-  const book = await Book.findById({ _id: id });
+  const book = await Book.findById({ _id: id }).populate({
+    path: "reviews.id",
+    model: "User",
+  });
   return book;
 };
 

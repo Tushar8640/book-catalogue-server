@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
-import {catchAsync} from "../../../../../src/shared/catchAsync";
-import {sendResponse} from "../../../../../src/shared/sendResponse";
 import httpStatus from "http-status";
 import {addReadListService, getAllReadListService, updateReadListService} from "./readlist.service";
 import {IReadList} from "./readlist.interface";
+import { sendResponse } from "../../../shared/sendResponse";
+import { catchAsync } from "../../../shared/catchAsync";
 
 export const createReadList = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;

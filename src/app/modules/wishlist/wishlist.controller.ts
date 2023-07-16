@@ -1,9 +1,11 @@
 import {Request, Response} from "express";
-import {catchAsync} from "../../../../../src/shared/catchAsync";
+
 import {addWishListService, getAllWishListService} from "./wishlist.service";
-import {sendResponse} from "../../../../../src/shared/sendResponse";
+
 import {IWishList} from "./wishlist.interface";
 import httpStatus from "http-status";
+import { catchAsync } from "../../../shared/catchAsync";
+import { sendResponse } from "../../../shared/sendResponse";
 
 export const createWishList = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;

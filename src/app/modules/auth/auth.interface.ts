@@ -1,4 +1,4 @@
-import { ObjectId, Types } from "mongoose";
+import { Types } from "mongoose";
 
 export type ILoginUser = {
   email: string;
@@ -14,10 +14,6 @@ export type IExistingUser = {
 export type ILoginResponse = {
   accessToken: string;
   refreshToken?: string;
-  user: {
-    id: ObjectId;
-    email: string;
-  };
 };
 export type IRefreshTokenResponse = {
   accessToken: string;

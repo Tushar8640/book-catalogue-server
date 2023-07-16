@@ -7,6 +7,7 @@ import { paginationFields } from "../../../constant/pagination";
 import { pick } from "../../../shared/pick";
 import { IBook } from "./book.interface";
 import {
+  addReviewService,
   createBookService,
   deleteBookService,
   getAllBooksService,
@@ -17,7 +18,7 @@ import { bookFilterableFields } from "./book.constant";
 //create cow
 export const createBook = catchAsync(async (req: Request, res: Response) => {
   const book = req.body;
-
+console.log(book);
   const newBook = await createBookService(book);
   sendResponse<IBook>(res, {
     statusCode: httpStatus.OK,
@@ -72,5 +73,19 @@ export const deleteBook = catchAsync(async (req: Request, res: Response) => {
     success: true,
     message: "Book deleted successfully!",
     data: book,
+  });
+});
+
+//add reviews
+export const addReview = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const review = req.body;
+  console.log(review,id);
+  const updatedBook = await addReviewService(id, review);
+  sendResponse<IBook>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Review added successfully!",
+    data: updatedBook,
   });
 });

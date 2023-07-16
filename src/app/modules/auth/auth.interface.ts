@@ -1,21 +1,23 @@
-import {Types} from "mongoose";
-import {ENUM_USER_ROLE} from "../../../enums/user";
+import { ObjectId, Types } from "mongoose";
 
 export type ILoginUser = {
-  phoneNumber: string;
+  email: string;
   password: string;
 };
 
 export type IExistingUser = {
   _id: Types.ObjectId;
-  phoneNumber?: string;
+  email: string;
   password: string;
-  role: string;
 };
 
 export type ILoginResponse = {
   accessToken: string;
   refreshToken?: string;
+  user: {
+    id: ObjectId;
+    email: string;
+  };
 };
 export type IRefreshTokenResponse = {
   accessToken: string;

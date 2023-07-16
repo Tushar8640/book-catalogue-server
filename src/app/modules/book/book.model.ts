@@ -11,18 +11,30 @@ const BookSchema = new Schema<IBook, BookModel>(
       type: String,
       required: true,
     },
-    reviews: {
-      type: Number,
-      required: true,
-    },
-
     genre: {
       type: String,
       required: true,
     },
-    publicationDate: {
+    publicationYear: {
       type: String,
       required: true,
+    },
+    description: {
+      type: String,
+    },
+    reviews: [
+      {
+        id: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        review: {
+          type: String,
+        },
+      },
+    ],
+    image: {
+      type: String,
     },
   },
   {

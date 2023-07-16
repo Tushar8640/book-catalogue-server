@@ -1,30 +1,23 @@
 import httpStatus from "http-status";
-import config from "../../../config/index";
-import { IUser } from "../user/user.interface";
-import { User } from "../user/user.model";
-import { ApiError } from "../../../handleErrors/ApiError";
+
 import {
   ILoginResponse,
   ILoginUser,
   IRefreshTokenResponse,
 } from "./auth.interface";
-import { createToken, verifyToken } from "../../../shared/jwtHelpers";
+
 import { Secret } from "jsonwebtoken";
-import { Admin } from "../admin/admin.model";
+import config from "../../../config";
+import { User } from "../user/user.model";
+import { ApiError } from "../../../handleErrors/ApiError";
+import { IUser } from "../user/user.interface";
+import { createToken, verifyToken } from "../../../shared/jwtHelpers";
 
 export const createUserService = async (
   user: IUser
 ): Promise<Partial<IUser> | null> => {
-  //set password
-  if (!user.password) {
-    user.password = config.default_user_pass as string;
-  }
-  //check whether budget is provided for buyer role
-  if (user.role === "buyer" && !user.budget) {
-    throw new ApiError(httpStatus.NOT_ACCEPTABLE, "Please put your budget");
-  }
-
   //creating user
+  console.log(user);
   const newUser = (await User.create(user)).toObject();
   if (!newUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Failed to create user!");
@@ -33,32 +26,28 @@ export const createUserService = async (
   return others;
 };
 
-//login user
-
+//
 export const loginUserService = async (
   payload: ILoginUser
 ): Promise<ILoginResponse> => {
-  const { phoneNumber, password } = payload;
+  const { email, password } = payload;
   //creating insatnce method
   const user = new User();
-  const isUserExist = await user.isUserExist(phoneNumber);
-
+  const isUserExist = await user.isUserExist(email);
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, "User doesn't found");
   }
-  //check password matched
-  const isPassMatched = await user.isPasswordMatched(
+  const isPasswordMatched = await user.isPasswordMatched(
     password,
     isUserExist.password
   );
-
-  if (isUserExist.password && !isPassMatched) {
+  if (isUserExist.password && !isPasswordMatched) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "password is incorrect");
   }
   //create accesstoken & refresh token
-  const { _id: userId, role } = isUserExist;
+  const { _id: userId, email: userEmail } = isUserExist;
   const accessToken = createToken(
-    { userId, role },
+    { userId, userEmail },
     config.jwt.secret as Secret,
     {
       expiresIn: config.jwt.expires_in,
@@ -66,7 +55,7 @@ export const loginUserService = async (
   );
 
   const refreshToken = createToken(
-    { userId, role },
+    { userId, userEmail },
     config.jwt.refresh_secret as Secret,
     { expiresIn: config.jwt.refresh_expires_in }
   );
@@ -76,9 +65,7 @@ export const loginUserService = async (
     refreshToken,
   };
 };
-
-//refresh token
-
+///
 export const refreshTokenService = async (
   token: string
 ): Promise<IRefreshTokenResponse> => {
@@ -89,39 +76,18 @@ export const refreshTokenService = async (
   } catch (error) {
     throw new ApiError(httpStatus.FORBIDDEN, "Invalid refresh token");
   }
-  const { userId, role } = verifiedToken;
-  if (role === "admin") {
-    const admin = new Admin();
-    const isAdminExist = await admin.isAdminExistById(userId);
-    if (!isAdminExist) {
-      throw new ApiError(httpStatus.NOT_FOUND, "Admin doesn't found");
-    }
-    newAccessToken = createToken(
-      {
-        userId: isAdminExist._id,
-        role: isAdminExist.role,
-        phoneNumber: isAdminExist.phoneNumber,
-      },
-      config.jwt.secret as Secret,
-      { expiresIn: config.jwt.expires_in }
-    );
-  } //
-  else {
-    const user = new User();
-    const isUserExist = await user.isUserExistById(userId);
-    if (!isUserExist) {
-      throw new ApiError(httpStatus.NOT_FOUND, "user doesn't found");
-    }
-    newAccessToken = createToken(
-      {
-        userId: isUserExist._id,
-        role: isUserExist.role,
-        phoneNumber: isUserExist.phoneNumber,
-      },
-      config.jwt.secret as Secret,
-      { expiresIn: config.jwt.expires_in }
-    );
+  const { userId, userEmail } = verifiedToken;
+
+  const user = new User();
+  const isUserExist = await user.isUserExistById(userId);
+  if (!isUserExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, "user doesn't found");
   }
+  newAccessToken = createToken(
+    { userId: isUserExist._id, userEmail: isUserExist.email },
+    config.jwt.secret as Secret,
+    { expiresIn: config.jwt.expires_in }
+  );
 
   return {
     accessToken: newAccessToken,

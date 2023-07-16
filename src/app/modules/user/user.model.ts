@@ -6,45 +6,20 @@ import {IExistingUser} from "../auth/auth.interface";
 
 const UserSchema = new Schema<IUser, UserModel>(
   {
-    phoneNumber: {
+    email: {
       type: String,
       required: true,
       unique: true,
     },
-    role: {
-      type: String,
-      required: true,
-      enum: ["seller", "buyer"],
-    },
+    
     password: {
       type: String,
       required: true,
       select: 0,
     },
     name: {
-      type: {
-        firstName: {
-          type: String,
-          required: true,
-        },
-        lastName: {
-          type: String,
-          required: true,
-        },
-      },
-      required: true,
-    },
-    address: {
       type: String,
       required: true,
-    },
-    budget: {
-      type: Number,
-      default: 0,
-    },
-    income: {
-      type: Number,
-      default: 0,
     },
   },
   {
@@ -55,12 +30,12 @@ const UserSchema = new Schema<IUser, UserModel>(
   }
 );
 //check user existence
-UserSchema.methods.isUserExist = async function (phoneNumber: string): Promise<IExistingUser | null> {
-  return await User.findOne({phoneNumber}, {_id: 1, password: 1, role: 1, phoneNumber: 1}).lean();
+UserSchema.methods.isUserExist = async function (email: string): Promise<IExistingUser | null> {
+  return await User.findOne({email}, {_id: 1, password: 1,  email: 1}).lean();
 };
 //check by id
 UserSchema.methods.isUserExistById = async function (id: string): Promise<IExistingUser | null> {
-  return await User.findOne({_id: id}, {_id: 1, password: 1, role: 1, phoneNumber: 1}).lean();
+  return await User.findOne({_id: id}, {_id: 1, password: 1, email: 1}).lean();
 };
 //check password match
 UserSchema.methods.isPasswordMatched = async function (givenPass: string, savedPass: string): Promise<boolean> {
